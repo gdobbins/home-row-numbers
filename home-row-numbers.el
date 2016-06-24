@@ -70,7 +70,12 @@
 		  ((eql layout 'dvorak-numpad)
 		   (home-row-numbers-numpad-warning numbers)
 		   home-row-numbers-dvorak-numpad)
-		  (t (assert (= (length layout) 10))
+		  (t (assert (consp layout)
+			     nil
+			     "the LAYOUT argument to
+		     home-row-numbers should either be a list of
+		     characters or one of the symbols specified
+		     in the home-row-numbers doc-string")
 		     layout)))
 	(numbers (cond
 		  ((consp numbers) numbers)
@@ -81,6 +86,10 @@
 		       (eql numbers 'prog))
 		   home-row-numbers-prog)
 		  (t home-row-numbers-norm))))
+    (assert (= (length letters) (length numbers))
+	    nil
+	    "the LAYOUT and NUMBERS arguments to home-row-numbers
+	    should be the same length")
     `(progn
        (defun home-row-numbers-argument (arg)
 	 ,home-row-numbers-argument-doc
@@ -102,9 +111,9 @@
 
        ,@(when print-key
 	   `((defun home-row-numbers-print (arg)
-		"Insert `prefix-arg' into the current buffer."
-		(interactive "p")
-		(insert (number-to-string arg)))
+	       "Insert `prefix-arg' into the current buffer."
+	       (interactive "p")
+	       (insert (number-to-string arg)))
 
 	     (define-key universal-argument-map
 	       [,print-key] #'home-row-numbers-print)))
