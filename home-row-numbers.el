@@ -16,7 +16,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(eval-and-compile (require 'cl))
+(eval-when-compile (require 'cl))
 
 (defvar home-row-numbers-qwerty
   '(?a ?s ?d ?f ?g ?h ?j ?k ?l ?\;)
@@ -72,7 +72,7 @@ arguments are constants."
 		  ((eql layout 'dvorak-numpad)
 		   (home-row-numbers-numpad-warning numbers)
 		   home-row-numbers-dvorak-numpad)
-		  (t (assert (consp layout)
+		  (t (cl-assert (consp layout)
 			     nil
 			     "the LAYOUT argument to
 		     home-row-numbers should either be a list of
@@ -88,7 +88,7 @@ arguments are constants."
 		       (eql numbers 'prog))
 		   home-row-numbers-prog)
 		  (t home-row-numbers-norm))))
-    (assert (= (length letters) (length numbers))
+    (cl-assert (= (length letters) (length numbers))
 	    nil
 	    "the LAYOUT and NUMBERS arguments to home-row-numbers
 	    should be the same length")
@@ -97,8 +97,8 @@ arguments are constants."
 	 ,home-row-numbers-argument-doc
 	 (interactive "P")
 	 (let ((last-command-event
-		(case last-command-event
-		  ,@(loop for k in letters
+		(cl-case last-command-event
+		  ,@(cl-loop for k in letters
 			  for n in numbers
 			  collect `(,k ,n))
 		  (t (user-error
@@ -117,14 +117,14 @@ arguments are constants."
 	       (interactive "p")
 	       (insert (number-to-string arg)))
 
-	     ,@(loop for k in (if (consp print-key)
+	     ,@(cl-loop for k in (if (consp print-key)
 				  print-key
 				(list print-key))
 		     collect
 		     `(define-key universal-argument-map
 			[,k] #'home-row-numbers-print))))
 
-       ,@(loop for k in letters
+       ,@(cl-loop for k in letters
 	       collect `(define-key universal-argument-map
 			  [,k] #'home-row-numbers-argument)))))
 
@@ -186,7 +186,7 @@ used instead."
 		 '("t" "nil")
 		 t)
 		(list :print-key
-		      (loop for char across
+		      (cl-loop for char across
 			    (completing-read "Print-key(s): "
 					     '("p")
 					     nil nil nil nil
@@ -216,7 +216,7 @@ used instead."
 		      'quote))))
        args)
       `(home-row-numbers-helper
-	,@(loop for arg in args collect
+	,@(cl-loop for arg in args collect
 		(if (consp arg)
 		    (second arg)
 		  arg)))
