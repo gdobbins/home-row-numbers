@@ -56,48 +56,13 @@
     (warn "home-row-numbers expects the NUMBERS argument to be
     nil when a numpad layout is chosen")))
 
-;;;###autoload
-(cl-defmacro home-row-numbers (&key (layout 'qwerty)
-				    (message t)
-				    (print-key ?p)
-				    (numbers nil))
-  "Setup `universal-prefix-map' to accept letters as numbers for
-use as either a prefix argument or to print into the current
-buffer.
-
-The following keywords are understood:
-
-LAYOUT
-
-One of the symbols: qwerty, dvorak, qwerty-numpad, dvorak-numpad.
-
-The first two use the home row of the respective layouts to input
-numbers, while the numpad variants use the keys underneath the
-left hand's index, middle, and ring fingers on the home row and
-the rows above and below plus the space bar to mimic the numpad.
-A list of characters can also be provided to be used instead.
-Default is qwerty.
-
-MESSAGE
-
-If true the numeric value of `prefix-arg' is printed in the
-mini-buffer after each keypress. Default true.
-
-PRINT-KEY
-
-A character to bind `home-row-numbers-print' to. If nil then not
-bound. If a list of characters all are bound. Default ?p.
-
-NUMBERS
-
-One of the symbols: zero-first or programming
-
-The former will move zero to be before one, the latter will
-re-order the numbers to be as they are in the programming dvorak
-layout. If nil, the default, then order the numbers as they are
-on a traditional keyboard layout. Numpad layouts assume this
-argument is nil. A list of characters can also be provided to be
-used instead."
+(cl-defmacro home-row-numbers-helper (&key (layout 'qwerty)
+					   (message t)
+					   (print-key ?p)
+					   (numbers nil))
+  "By implementing the bulk of home-row-numbers as a macro it can
+be compiled away if the user byte-compiles their init and all
+arguments are constants."
   (let ((letters (cond
 		  ((eql layout 'qwerty) home-row-numbers-qwerty)
 		  ((eql layout 'dvorak) home-row-numbers-dvorak)
@@ -163,6 +128,100 @@ used instead."
 	       collect `(define-key universal-argument-map
 			  [,k] #'home-row-numbers-argument)))))
 
+(defun home-row-numbers--completing-read (keyword prompt options required)
+  (list keyword
+	(intern
+	 (completing-read prompt options nil required
+			  nil nil (first options)))))
+
+;;;###autoload
+(cl-defun home-row-numbers (&key (layout 'qwerty)
+				 (message t)
+				 (print-key ?p)
+				 (numbers nil))
+  "Setup `universal-prefix-map' to accept letters as numbers for
+use as either a prefix argument or to print into the current
+buffer.
+
+The following keywords are understood:
+
+LAYOUT
+
+One of the symbols: qwerty, dvorak, qwerty-numpad, dvorak-numpad.
+
+The first two use the home row of the respective layouts to input
+numbers, while the numpad variants use the keys underneath the
+left hand's index, middle, and ring fingers on the home row and
+the rows above and below plus the space bar to mimic the numpad.
+A list of characters can also be provided to be used instead.
+Default is qwerty.
+
+MESSAGE
+
+If true the numeric value of `prefix-arg' is printed in the
+mini-buffer after each keypress. Default true.
+
+PRINT-KEY
+
+A character to bind `home-row-numbers-print' to. If nil then not
+bound. If a list of characters all are bound. Default ?p.
+
+NUMBERS
+
+One of the symbols: zero-first or programming
+
+The former will move zero to be before one, the latter will
+re-order the numbers to be as they are in the programming dvorak
+layout. If nil, the default, then order the numbers as they are
+on a traditional keyboard layout. Numpad layouts assume this
+argument is nil. A list of characters can also be provided to be
+used instead."
+  (interactive (append
+		(home-row-numbers--completing-read
+		 :layout "Layout: "
+		 '("qwerty" "dvorak" "qwerty-numpad" "dvorak-numpad")
+		 'confirm)
+		(home-row-numbers--completing-read
+		 :message "Message: "
+		 '("t" "nil")
+		 t)
+		(list :print-key
+		      (loop for char across
+			    (completing-read "Print-key(s): "
+					     '("p")
+					     nil nil nil nil
+					     "p")
+			    collect char))
+		(home-row-numbers--completing-read
+		 :numbers "Numbers: "
+		 '("normal" "zero-first" "programmer")
+		 'confirm)))
+  (eval `(home-row-numbers-helper
+	  :layout ,layout
+	  :message ,message
+	  :print-key ,print-key
+	  :numbers ,(unless (eql numbers 'normal) numbers)))
+  (byte-compile #'home-row-numbers-argument)
+  (byte-compile #'home-row-numbers-print))
+
+(define-compiler-macro home-row-numbers (&whole form &rest args)
+  (if (cl-every
+       (lambda (x)
+	 (or (keywordp x)
+	     (eq x t)
+	     (eq x nil)
+	     (integerp x)
+	     (and (consp x)
+		  (eq (first x)
+		      'quote))))
+       args)
+      `(home-row-numbers-helper
+	,@(loop for arg in args collect
+		(if (consp arg)
+		    (second arg)
+		  arg)))
+    form))
+
 ;;;###autoload
 (defun home-row-numbers-disable ()
   "Disable home-row-numbers"
@@ -173,3 +232,5 @@ used instead."
   (substitute-key-definition 'home-row-numbers-print
 			     nil
 			     universal-argument-map))
+
+(provide 'home-row-numbers)
