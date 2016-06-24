@@ -176,26 +176,29 @@ layout. If nil, the default, then order the numbers as they are
 on a traditional keyboard layout. Numpad layouts assume this
 argument is nil. A list of characters can also be provided to be
 used instead."
-  (interactive (append
-		(home-row-numbers--completing-read
-		 :layout "Layout: "
-		 '("qwerty" "dvorak" "qwerty-numpad" "dvorak-numpad")
-		 'confirm)
-		(home-row-numbers--completing-read
-		 :message "Message: "
-		 '("t" "nil")
-		 t)
-		(list :print-key
-		      (cl-loop for char across
-			    (completing-read "Print-key(s): "
-					     '("p")
-					     nil nil nil nil
-					     "p")
-			    collect char))
-		(home-row-numbers--completing-read
-		 :numbers "Numbers: "
-		 '("normal" "zero-first" "programmer")
-		 'confirm)))
+  (interactive
+   (progn
+     (home-row-numbers-disable)
+     (append
+      (home-row-numbers--completing-read
+       :layout "Layout: "
+       '("qwerty" "dvorak" "qwerty-numpad" "dvorak-numpad")
+       'confirm)
+      (home-row-numbers--completing-read
+       :message "Message: "
+       '("t" "nil")
+       t)
+      (list :print-key
+	    (cl-loop for char across
+		     (completing-read "Print-key(s): "
+				      '("p")
+				      nil nil nil nil
+				      "p")
+		     collect char))
+      (home-row-numbers--completing-read
+       :numbers "Numbers: "
+       '("normal" "zero-first" "programmer")
+       'confirm))))
   (eval `(home-row-numbers-helper
 	  :layout ,layout
 	  :message ,message
