@@ -26,6 +26,14 @@
   '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s)
   "list of the dvorak home row keys")
 
+(defvar home-row-numbers-qwerty-numpad
+  '(?m ?\, ?\. ?j ?k ?l ?u ?i ?o ?\ )
+  "keys forming a numpad under the left hand in qwerty")
+
+(defvar home-row-numbers-dvorak-numpad
+  '(?m ?w ?v ?h ?t ?n ?g ?c ?r ?\ )
+  "keys forming a numpad under the left hand in dvorak")
+
 (defvar home-row-numbers-norm
   '(?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9 ?0)
   "list of the numbers on the keyboard in normal order")
@@ -42,6 +50,12 @@
   "Translate the home row keys into digits"
   "doc string for `home-row-numbers-argument")
 
+(defun home-row-numbers-numpad-warning (arg)
+  "Issue a warning when ARG is true"
+  (when arg
+    (warn "home-row-numbers expects the NUMBERS argument to be
+    nil when a numpad layout is chosen")))
+
 ;;;###autoload
 (cl-defmacro home-row-numbers (&key (layout 'qwerty)
 				    (message t)
@@ -50,6 +64,12 @@
   (let ((letters (cond
 		  ((eql layout 'qwerty) home-row-numbers-qwerty)
 		  ((eql layout 'dvorak) home-row-numbers-dvorak)
+		  ((eql layout 'qwerty-numpad)
+		   (home-row-numbers-numpad-warning numbers)
+		   home-row-numbers-qwerty-numpad)
+		  ((eql layout 'dvorak-numpad)
+		   (home-row-numbers-numpad-warning numbers)
+		   home-row-numbers-dvorak-numpad)
 		  (t (assert (= (length layout) 10))
 		     layout)))
 	(numbers (cond
