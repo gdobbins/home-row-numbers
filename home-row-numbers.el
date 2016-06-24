@@ -86,7 +86,7 @@ mini-buffer after each keypress. Default true.
 PRINT-KEY
 
 A character to bind `home-row-numbers-print' to. If nil then not
-bound. Default ?p.
+bound. If a list of characters all are bound. Default ?p.
 
 NUMBERS
 
@@ -152,8 +152,12 @@ used instead."
 	       (interactive "p")
 	       (insert (number-to-string arg)))
 
-	     (define-key universal-argument-map
-	       [,print-key] #'home-row-numbers-print)))
+	     ,@(loop for k in (if (consp print-key)
+				  print-key
+				(list print-key))
+		     collect
+		     `(define-key universal-argument-map
+			[,k] #'home-row-numbers-print))))
 
        ,@(loop for k in letters
 	       collect `(define-key universal-argument-map
