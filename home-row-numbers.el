@@ -61,6 +61,43 @@
 				    (message t)
 				    (print-key ?p)
 				    (numbers nil))
+  "Setup `universal-prefix-map' to accept letters as numbers for
+use as either a prefix argument or to print into the current
+buffer.
+
+The following keywords are understood:
+
+LAYOUT
+
+One of the symbols: qwerty, dvorak, qwerty-numpad, dvorak-numpad.
+
+The first two use the home row of the respective layouts to input
+numbers, while the numpad variants use the keys underneath the
+left hand's index, middle, and ring fingers on the home row and
+the rows above and below plus the space bar to mimic the numpad.
+A list of characters can also be provided to be used instead.
+Default is qwerty.
+
+MESSAGE
+
+If true the numeric value of `prefix-arg' is printed in the
+mini-buffer after each keypress. Default true.
+
+PRINT-KEY
+
+A character to bind `home-row-numbers-print' to. If nil then not
+bound. Default ?p.
+
+NUMBERS
+
+One of the symbols: zero-first or programming
+
+The former will move zero to be before one, the latter will
+re-order the numbers to be as they are in the programming dvorak
+layout. If nil, the default, then order the numbers as they are
+on a traditional keyboard layout. Numpad layouts assume this
+argument is nil. A list of characters can also be provided to be
+used instead."
   (let ((letters (cond
 		  ((eql layout 'qwerty) home-row-numbers-qwerty)
 		  ((eql layout 'dvorak) home-row-numbers-dvorak)
