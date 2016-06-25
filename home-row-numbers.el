@@ -203,7 +203,8 @@ used instead."
 	  :layout ,layout
 	  :message ,message
 	  :print-key ,print-key
-	  :numbers ,(unless (eql numbers 'normal) numbers)))
+	  :numbers ,(unless (eql numbers 'normal) numbers))
+	t)
   (byte-compile #'home-row-numbers-argument)
   (byte-compile #'home-row-numbers-print))
 
