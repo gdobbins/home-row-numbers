@@ -1,9 +1,13 @@
-;;; -*- lexical-binding: t; -*-
+;;; home-row-numbers.el --- Put numbers on the home row -*- lexical-binding: t; -*-
 
 ;;; Copyright 2016 Graham Dobbins
 
+;; Author: Graham Dobbins <gambyte@users.noreply.github.com>
+;; Version: 0.1
+;; Package-Requires: ((emacs "24.5"))
+;; Keywords: convenience, home-row, numbers, prefix-arg
+
 ;; This program is free software: you can redistribute it and/or modify
-;;
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
@@ -15,6 +19,14 @@
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; This packages allows for conveniently entering numbers for use with
+;; universal arguments or for entering into a buffer. It supports both
+;; qwerty and dvorak keyboard layouts and has options for using either
+;; the home row or a pseudo numpad type layout. Custom keyboard
+;; layouts and number orders are also supported.
 
 (eval-when-compile (require 'cl))
 
