@@ -75,6 +75,8 @@
 (cl-defmacro home-row-numbers-helper (&key (layout 'qwerty)
 					   (message t)
 					   (print-key ?p)
+					   (decimal-key ?\.)
+					   (decimal ".")
 					   (numbers nil))
   "By implementing the bulk of home-row-numbers as a macro it can
 be compiled away if the user byte-compiles their init and all
@@ -149,6 +151,28 @@ arguments are constants."
 		     `(define-key universal-argument-map
 			[,k] #'home-row-numbers-print))))
 
+       ,@(when decimal-key
+	   (cl-assert print-key nil "The DECIMAL-KEY
+	   functionality requires at least one PRINT-KEY")
+	   `((defun home-row-numbers-decimal (arg)
+	       "Insert `prefix-arg' into the current buffer, a
+	       decimal, and continue accepting a prefix
+	       argument."
+	       (interactive "p")
+	       (home-row-numbers-print arg)
+	       (insert ,decimal)
+	       (universal-argument))
+
+	     ,@(cl-loop for k in (if (consp decimal-key)
+				     decimal-key
+				   (if (stringp decimal-key)
+				       (home-row-numbers-string->char-list
+					decimal-key)
+				     (list decimal-key)))
+			collect
+			`(define-key universal-argument-map
+			   [,k] #'home-row-numbers-decimal))))
+
        ,@(cl-loop for k in letters
 	       collect `(define-key universal-argument-map
 			  [,k] #'home-row-numbers-argument)))))
@@ -163,6 +187,8 @@ arguments are constants."
 (cl-defun home-row-numbers (&key (layout 'qwerty)
 				 (message t)
 				 (print-key ?p)
+				 (decimal-key ?\.)
+				 (decimal ".")
 				 (numbers nil))
   "Setup `universal-prefix-map' to accept letters as numbers for
 use as either a prefix argument or to print into the current
@@ -179,7 +205,8 @@ numbers, while the numpad variants use the keys underneath the
 left hand's index, middle, and ring fingers on the home row and
 the rows above and below plus the space bar to mimic the numpad.
 A string or list of characters can also be provided to be used
-instead. Default is qwerty.
+instead. LAYOUT keys override PRINT-KEY and DECIMAL-KEY.
+Default is qwerty.
 
 MESSAGE
 
@@ -190,6 +217,17 @@ PRINT-KEY
 
 A character to bind `home-row-numbers-print' to. If nil then not
 bound. If a string or list of characters all are bound. Default p.
+
+DECIMAL-KEY
+
+A character to bind `home-row-numbers-decimal' to. If nil then
+not bound. Requires at least one PRINT-KEY. If a string or list
+of characters all are bound. Default period.
+
+DECIMAL
+
+A string to be inserted by `home-row-numbers-decimal'.
+Default period.
 
 NUMBERS
 
@@ -219,6 +257,17 @@ provided to be used instead."
 			      '("p")
 			      nil nil nil nil
 			      "p")))
+      (list :decimal-key
+	    (home-row-numbers-string->char-list
+	     (completing-read "Decimal-key(s): "
+			      '("." ",")
+			      nil nil nil nil
+			      ".")))
+      (list :decimal
+	    (completing-read "Decimal: "
+			     '("." ",")
+			     nil nil nil nil
+			     "."))
       (home-row-numbers--completing-read
        :numbers "Numbers: "
        '("normal" "zero-first" "programmer")
@@ -227,10 +276,13 @@ provided to be used instead."
 	  :layout ,layout
 	  :message ,message
 	  :print-key ,print-key
+	  :decimal-key ,decimal-key
+	  :decimal ,decimal
 	  :numbers ,(unless (eql numbers 'normal) numbers))
 	t)
   (byte-compile #'home-row-numbers-argument)
-  (byte-compile #'home-row-numbers-print))
+  (byte-compile #'home-row-numbers-print)
+  (byte-compile #'home-row-numbers-decimal))
 
 (define-compiler-macro home-row-numbers (&whole form &rest args)
   (if (cl-every
@@ -259,6 +311,9 @@ provided to be used instead."
 			     nil
 			     universal-argument-map)
   (substitute-key-definition 'home-row-numbers-print
+			     nil
+			     universal-argument-map)
+  (substitute-key-definition 'home-row-numbers-decimal
 			     nil
 			     universal-argument-map))
 
