@@ -116,6 +116,10 @@ arguments are constants."
 	    "the LAYOUT and NUMBERS arguments to home-row-numbers
 	    should be the same length")
     `(progn
+       (defvar home-row-numbers-already-printed nil
+	       "String of what's been printed, for use with
+	       decimal functionality")
+
        (defun home-row-numbers-argument (arg)
 	 ,home-row-numbers-argument-doc
 	 (interactive "P")
@@ -128,10 +132,14 @@ arguments are constants."
 		      "home-row-numbers-argument is not configured for %c"
 		      last-command-event)))))
 	   (digit-argument arg)
+	   (when (eq last-command #'universal-argument)
+	     (setq home-row-numbers-already-printed nil))
 	   ,(when message
 	      '(princ
-		(format "C-u %d"
-			(prefix-numeric-value prefix-arg))
+		(concat "C-u "
+			home-row-numbers-already-printed
+			(number-to-string
+			 (prefix-numeric-value prefix-arg)))
 		t))
 	   prefix-arg))
 
@@ -139,7 +147,9 @@ arguments are constants."
 	   `((defun home-row-numbers-print (arg)
 	       "Insert `prefix-arg' into the current buffer."
 	       (interactive "p")
-	       (insert (number-to-string arg)))
+	       (let ((str (number-to-string arg)))
+		 (insert str)
+		 str))
 
 	     ,@(cl-loop for k in (if (consp print-key)
 				     print-key
@@ -159,8 +169,12 @@ arguments are constants."
 	       decimal, and continue accepting a prefix
 	       argument."
 	       (interactive "p")
-	       (home-row-numbers-print arg)
-	       (insert ,decimal)
+	       (let ((new-part (home-row-numbers-print arg)))
+		 (insert ,decimal)
+		 (setq home-row-numbers-already-printed
+		       (concat home-row-numbers-already-printed
+			       new-part
+			       ,decimal)))
 	       (universal-argument))
 
 	     ,@(cl-loop for k in (if (consp decimal-key)
