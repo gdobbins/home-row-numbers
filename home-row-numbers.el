@@ -68,6 +68,10 @@
     (warn "home-row-numbers expects the NUMBERS argument to be
     nil when a numpad layout is chosen")))
 
+(defun home-row-numbers-string->char-list (string)
+  "Create a list consisting of the characters of STRING"
+  (cl-loop for char across string collect char))
+
 (cl-defmacro home-row-numbers-helper (&key (layout 'qwerty)
 					   (message t)
 					   (print-key ?p)
@@ -84,15 +88,20 @@ arguments are constants."
 		  ((eql layout 'dvorak-numpad)
 		   (home-row-numbers-numpad-warning numbers)
 		   home-row-numbers-dvorak-numpad)
+		  ((stringp layout)
+		   (home-row-numbers-string->char-list layout))
 		  (t (cl-assert (consp layout)
 			     nil
 			     "the LAYOUT argument to
-		     home-row-numbers should either be a list of
-		     characters or one of the symbols specified
-		     in the home-row-numbers doc-string")
+		     home-row-numbers should either be a string
+		     or list of characters or one of the symbols
+		     specified in the home-row-numbers
+		     doc-string")
 		     layout)))
 	(numbers (cond
 		  ((consp numbers) numbers)
+		  ((stringp numbers)
+		   (home-row-numbers-string->char-list numbers))
 		  ((or (eql numbers 'zero)
 		       (eql numbers 'zero-first))
 		   home-row-numbers-zero)
@@ -130,8 +139,11 @@ arguments are constants."
 	       (insert (number-to-string arg)))
 
 	     ,@(cl-loop for k in (if (consp print-key)
-				  print-key
-				(list print-key))
+				     print-key
+				   (if (stringp print-key)
+				       (home-row-numbers-string->char-list
+					print-key)
+				     (list print-key)))
 		     collect
 		     `(define-key universal-argument-map
 			[,k] #'home-row-numbers-print))))
@@ -165,8 +177,8 @@ The first two use the home row of the respective layouts to input
 numbers, while the numpad variants use the keys underneath the
 left hand's index, middle, and ring fingers on the home row and
 the rows above and below plus the space bar to mimic the numpad.
-A list of characters can also be provided to be used instead.
-Default is qwerty.
+A string or list of characters can also be provided to be used
+instead. Default is qwerty.
 
 MESSAGE
 
@@ -176,7 +188,7 @@ mini-buffer after each keypress. Default true.
 PRINT-KEY
 
 A character to bind `home-row-numbers-print' to. If nil then not
-bound. If a list of characters all are bound. Default ?p.
+bound. If a string or list of characters all are bound. Default p.
 
 NUMBERS
 
@@ -186,8 +198,8 @@ The former will move zero to be before one, the latter will
 re-order the numbers to be as they are in the programming dvorak
 layout. If nil, the default, then order the numbers as they are
 on a traditional keyboard layout. Numpad layouts assume this
-argument is nil. A list of characters can also be provided to be
-used instead."
+argument is nil. A string or list of characters can also be
+provided to be used instead."
   (interactive
    (progn
      (home-row-numbers-disable)
@@ -201,12 +213,11 @@ used instead."
        '("t" "nil")
        t)
       (list :print-key
-	    (cl-loop for char across
-		     (completing-read "Print-key(s): "
-				      '("p")
-				      nil nil nil nil
-				      "p")
-		     collect char))
+	    (home-row-numbers-string->char-list
+	     (completing-read "Print-key(s): "
+			      '("p")
+			      nil nil nil nil
+			      "p")))
       (home-row-numbers--completing-read
        :numbers "Numbers: "
        '("normal" "zero-first" "programmer")
@@ -227,6 +238,7 @@ used instead."
 	     (eq x t)
 	     (eq x nil)
 	     (integerp x)
+	     (stringp x)
 	     (and (consp x)
 		  (eq (first x)
 		      'quote))))
