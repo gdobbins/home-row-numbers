@@ -129,7 +129,8 @@ arguments are constants."
 	   ,(when message
 	      '(princ
 		(format "C-u %d"
-			(prefix-numeric-value prefix-arg))))
+			(prefix-numeric-value prefix-arg))
+		t))
 	   prefix-arg))
 
        ,@(when print-key
