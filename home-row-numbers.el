@@ -133,11 +133,12 @@ arguments are constants."
 		      last-command-event)))))
 	   (digit-argument arg)
 	   ,(when message
-	      '(message
-		(concat "C-u- "
-			home-row-numbers-already-printed
-			(number-to-string
-			 (prefix-numeric-value prefix-arg)))))
+	      '(let ((message-log-max nil))
+		 (message
+		  (concat "C-u- "
+			  home-row-numbers-already-printed
+			  (number-to-string
+			   (prefix-numeric-value prefix-arg))))))
 	   prefix-arg))
 
        ,@(when print-key
@@ -167,13 +168,14 @@ arguments are constants."
 	       decimal, and continue accepting a prefix
 	       argument."
 	       (interactive "p")
-	       (let ((new-part (home-row-numbers-print arg)))
+	       (let ((new-part (home-row-numbers-print arg))
+		     (message-log-max nil))
 		 (insert ,decimal)
 		 (setq home-row-numbers-already-printed
 		       (concat home-row-numbers-already-printed
 			       new-part
-			       ,decimal)))
-	       (message (concat "C-u- " home-row-numbers-already-printed))
+			       ,decimal))
+		 (message (concat "C-u- " home-row-numbers-already-printed)))
 	       (universal-argument))
 
 	     ,@(cl-loop for k in (if (consp decimal-key)
