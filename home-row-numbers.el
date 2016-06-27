@@ -81,6 +81,9 @@
   "By implementing the bulk of home-row-numbers as a macro it can
 be compiled away if the user byte-compiles their init and all
 arguments are constants."
+  (cl-assert (stringp decimal) nil
+	     "The DECIMAL argument to home-row-numbers should be
+	     a string containing the desired decimal character(s)")
   (let ((letters (cond
 		  ((eql layout 'qwerty) home-row-numbers-qwerty)
 		  ((eql layout 'dvorak) home-row-numbers-dvorak)
