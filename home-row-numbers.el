@@ -58,10 +58,6 @@
   '(?7 ?5 ?3 ?1 ?9 ?0 ?2 ?4 ?6 ?8)
   "list of the numbers on the keyboard in programmer dvorak order")
 
-(defvar home-row-numbers-argument-doc
-  "Translate the home row keys into digits"
-  "doc string for `home-row-numbers-argument")
-
 (defun home-row-numbers-numpad-warning (arg)
   "Issue a warning when ARG is true"
   (when arg
@@ -124,7 +120,7 @@ arguments are constants."
 	       decimal functionality")
 
        (defun home-row-numbers-argument (arg)
-	 ,home-row-numbers-argument-doc
+	 "Translate the home row keys into digits"
 	 (interactive "P")
 	 (let ((last-command-event
 		(cl-case last-command-event
