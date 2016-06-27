@@ -132,21 +132,19 @@ arguments are constants."
 		      "home-row-numbers-argument is not configured for %c"
 		      last-command-event)))))
 	   (digit-argument arg)
-	   (when (eq last-command #'universal-argument)
-	     (setq home-row-numbers-already-printed nil))
 	   ,(when message
-	      '(princ
-		(concat "C-u "
+	      '(message
+		(concat "C-u- "
 			home-row-numbers-already-printed
 			(number-to-string
-			 (prefix-numeric-value prefix-arg)))
-		t))
+			 (prefix-numeric-value prefix-arg)))))
 	   prefix-arg))
 
        ,@(when print-key
 	   `((defun home-row-numbers-print (arg)
 	       "Insert `prefix-arg' into the current buffer."
 	       (interactive "p")
+	       (setq home-row-numbers-already-printed nil)
 	       (let ((str (number-to-string arg)))
 		 (insert str)
 		 str))
@@ -175,6 +173,7 @@ arguments are constants."
 		       (concat home-row-numbers-already-printed
 			       new-part
 			       ,decimal)))
+	       (message (concat "C-u- " home-row-numbers-already-printed))
 	       (universal-argument))
 
 	     ,@(cl-loop for k in (if (consp decimal-key)
