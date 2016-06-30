@@ -174,7 +174,8 @@ arguments are constants."
 		       (concat home-row-numbers-already-printed
 			       new-part
 			       ,decimal))
-		 (message (concat "C-u- " home-row-numbers-already-printed)))
+		 ,(when message
+		    '(message (concat "C-u- " home-row-numbers-already-printed))))
 	       (universal-argument))
 
 	     ,@(cl-loop for k in (if (consp decimal-key)
