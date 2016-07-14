@@ -121,6 +121,9 @@ arguments are constants."
 	       "String of what's been printed, for use with
 	       decimal functionality")
 
+       (defvar home-row-numbers-leading-zeroes 0
+	 "Number of zeroes pressed before another number")
+
        (defun home-row-numbers-argument (arg)
 	 "Translate the home row keys into digits"
 	 (interactive "P")
@@ -131,13 +134,23 @@ arguments are constants."
 			  collect `(,k ,n))
 		  (t (user-error
 		      "home-row-numbers-argument is not configured for %c"
-		      last-command-event)))))
+		      last-command-event))))
+	       (arg-is-zero
+		(or (equal '(4) arg)
+		    (zerop (prefix-numeric-value arg)))))
+	   (when (and arg-is-zero
+		      (eq last-command-event ?0))
+	     (incf home-row-numbers-leading-zeroes))
 	   (digit-argument arg)
 	   ,(when message
 	      '(let ((message-log-max nil))
 		 (message
 		  (concat "C-u- "
 			  home-row-numbers-already-printed
+			  (apply #'concat
+			     (cl-loop for i from (if arg-is-zero 2 1) to
+				      home-row-numbers-leading-zeroes
+				      collect "0"))
 			  (number-to-string
 			   (prefix-numeric-value prefix-arg))))))
 	   prefix-arg))
@@ -146,10 +159,18 @@ arguments are constants."
 	   `((defun home-row-numbers-print (arg)
 	       "Insert `prefix-arg' into the current buffer."
 	       (interactive "p")
-	       (setq home-row-numbers-already-printed nil)
-	       (let ((str (number-to-string arg)))
-		 (insert str)
-		 str))
+	       (let ((lead-zeroes
+		      (apply #'concat
+			     (cl-loop for i from (if (zerop arg) 2 1) to
+				      home-row-numbers-leading-zeroes
+				      collect "0"))))
+		 (setq home-row-numbers-already-printed nil
+		       home-row-numbers-leading-zeroes 0)
+		 (let ((str (concat
+			     lead-zeroes
+			     (number-to-string arg))))
+		   (insert str)
+		   str)))
 
 	     ,@(cl-loop for k in (if (consp print-key)
 				     print-key
