@@ -334,8 +334,10 @@ itself byte-compiled."
 	t)
   (when compile
     (byte-compile #'home-row-numbers-argument)
-    (byte-compile #'home-row-numbers-print)
-    (byte-compile #'home-row-numbers-decimal)))
+    (when print-key
+      (byte-compile #'home-row-numbers-print)
+      (when decimal-key
+	(byte-compile #'home-row-numbers-decimal)))))
 
 (define-compiler-macro home-row-numbers (&whole form &rest args)
   (if (cl-every
