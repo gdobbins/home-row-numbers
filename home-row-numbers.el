@@ -145,7 +145,10 @@ arguments are constants."
 	   ,(when message
 	      '(let ((message-log-max nil)
 		     (prefix-number
-		      (prefix-numeric-value prefix-arg)))
+		      (prefix-numeric-value prefix-arg))
+		     (arg-is-minus-zero
+		      (and (eq '- arg)
+			   (not (eq last-command-event ?1)))))
 		 (message
 		  (concat "C-u- "
 			  home-row-numbers-already-printed
@@ -154,28 +157,31 @@ arguments are constants."
 				 (cl-loop for i from
 					  (if (and
 					       arg-and-key-are-zero
-					       (not (eq '- arg))) 2 1)
+					       (not arg-is-minus-zero)) 2 1)
 					  to home-row-numbers-leading-zeroes
 					  collect "0"))
-			  (number-to-string
-			   (abs prefix-number))))))
+			  (unless arg-is-minus-zero
+			    (number-to-string
+			     (abs prefix-number)))))))
 	   prefix-arg))
 
        ,@(when print-key
-	   `((defun home-row-numbers-print (arg)
+	   `((defun home-row-numbers-print (real-arg)
 	       "Insert `prefix-arg' into the current buffer."
-	       (interactive "p")
-	       (let ((lead-zeroes
-		      (apply #'concat
-			     (cl-loop for i from (if (zerop arg) 2 1) to
-				      home-row-numbers-leading-zeroes
-				      collect "0"))))
+	       (interactive "P")
+	       (let* ((arg (prefix-numeric-value real-arg))
+		      (lead-zeroes
+		       (apply #'concat
+			      (cl-loop for i from (if (zerop arg) 2 1) to
+				       home-row-numbers-leading-zeroes
+				       collect "0"))))
 		 (setq home-row-numbers-already-printed nil
 		       home-row-numbers-leading-zeroes 0)
 		 (let ((str (concat
 			     (if (< arg 0) "-" "")
 			     lead-zeroes
-			     (number-to-string (abs arg)))))
+			     (unless (eq '- real-arg)
+			       (number-to-string (abs arg))))))
 		   (insert str)
 		   str)))
 
@@ -196,7 +202,7 @@ arguments are constants."
 	       "Insert `prefix-arg' into the current buffer, a
 	       decimal, and continue accepting a prefix
 	       argument."
-	       (interactive "p")
+	       (interactive "P")
 	       (let ((new-part (home-row-numbers-print arg))
 		     (message-log-max nil))
 		 (insert ,decimal)
