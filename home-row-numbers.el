@@ -127,19 +127,19 @@ arguments are constants."
        (defun home-row-numbers-argument (arg)
 	 "Translate the home row keys into digits"
 	 (interactive "P")
-	 (let ((last-command-event
-		(cl-case last-command-event
-		  ,@(cl-loop for k in letters
-			     for n in numbers
-			     collect `(,k ,n))
-		  (t (user-error
-		      "home-row-numbers-argument is not configured for %c"
-		      last-command-event))))
-	       (arg-is-zero
-		(or (equal '(4) arg)
-		    (zerop (prefix-numeric-value arg)))))
-	   (when (and arg-is-zero
-		      (eq last-command-event ?0))
+	 (let* ((last-command-event
+		 (cl-case last-command-event
+		   ,@(cl-loop for k in letters
+			      for n in numbers
+			      collect `(,k ,n))
+		   (t (user-error
+		       "home-row-numbers-argument is not configured for %c"
+		       last-command-event))))
+		(arg-and-key-are-zero
+		 (and (eq last-command-event ?0)
+		      (or (equal '(4) arg)
+			  (zerop (prefix-numeric-value arg))))))
+	   (when arg-and-key-are-zero
 	     (incf home-row-numbers-leading-zeroes))
 	   (digit-argument arg)
 	   ,(when message
@@ -148,8 +148,9 @@ arguments are constants."
 		  (concat "C-u- "
 			  home-row-numbers-already-printed
 			  (apply #'concat
-				 (cl-loop for i from (if arg-is-zero 2 1) to
-					  home-row-numbers-leading-zeroes
+				 (cl-loop for i from
+					  (if arg-and-key-are-zero 2 1)
+					  to home-row-numbers-leading-zeroes
 					  collect "0"))
 			  (number-to-string
 			   (prefix-numeric-value prefix-arg))))))
