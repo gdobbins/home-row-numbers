@@ -40,11 +40,11 @@
 
 (defvar home-row-numbers-qwerty-numpad
   '(?m ?\, ?\. ?j ?k ?l ?u ?i ?o ?\ )
-  "keys forming a numpad under the left hand in qwerty")
+  "keys forming a numpad under the right hand in qwerty")
 
 (defvar home-row-numbers-dvorak-numpad
   '(?m ?w ?v ?h ?t ?n ?g ?c ?r ?\ )
-  "keys forming a numpad under the left hand in dvorak")
+  "keys forming a numpad under the right hand in dvorak")
 
 (defvar home-row-numbers-norm
   '(?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9 ?0)
@@ -248,7 +248,7 @@ One of the symbols: qwerty, dvorak, qwerty-numpad, dvorak-numpad.
 
 The first two use the home row of the respective layouts to input
 numbers, while the numpad variants use the keys underneath the
-left hand's index, middle, and ring fingers on the home row and
+right hand's index, middle, and ring fingers on the home row and
 the rows above and below plus the space bar to mimic the numpad.
 A string or list of characters can also be provided to be used
 instead. LAYOUT keys override PRINT-KEY and DECIMAL-KEY.
