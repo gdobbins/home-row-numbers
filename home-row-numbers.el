@@ -139,6 +139,9 @@ arguments are constants."
 		 (and (eq last-command-event ?0)
 		      (or (not (numberp arg))
 			  (zerop (prefix-numeric-value arg))))))
+	   (when (listp arg)
+	     (setq home-row-numbers-already-printed nil
+		   home-row-numbers-leading-zeroes 0))
 	   (when arg-and-key-are-zero
 	     (incf home-row-numbers-leading-zeroes))
 	   (digit-argument arg)
@@ -212,7 +215,8 @@ arguments are constants."
 			       ,decimal))
 		 ,(when message
 		    '(message (concat "C-u- " home-row-numbers-already-printed))))
-	       (universal-argument))
+	       (universal-argument)
+	       (setq prefix-arg 0))
 
 	     ,@(cl-loop for k in (if (consp decimal-key)
 				     decimal-key
