@@ -94,8 +94,8 @@ arguments are constants."
 		  ((stringp layout)
 		   (home-row-numbers-string->char-list layout))
 		  (t (cl-assert (consp layout)
-			     nil
-			     "the LAYOUT argument to
+				nil
+				"the LAYOUT argument to
 		     home-row-numbers should either be a string
 		     or list of characters or one of the symbols
 		     specified in the home-row-numbers
@@ -113,12 +113,12 @@ arguments are constants."
 		   home-row-numbers-prog)
 		  (t home-row-numbers-norm))))
     (cl-assert (= (length letters) (length numbers))
-	    nil
-	    "the LAYOUT and NUMBERS arguments to home-row-numbers
+	       nil
+	       "the LAYOUT and NUMBERS arguments to home-row-numbers
 	    should be the same length")
     `(progn
        (defvar home-row-numbers-already-printed nil
-	       "String of what's been printed, for use with
+	 "String of what's been printed, for use with
 	       decimal functionality")
 
        (defvar home-row-numbers-leading-zeroes 0
@@ -130,8 +130,8 @@ arguments are constants."
 	 (let ((last-command-event
 		(cl-case last-command-event
 		  ,@(cl-loop for k in letters
-			  for n in numbers
-			  collect `(,k ,n))
+			     for n in numbers
+			     collect `(,k ,n))
 		  (t (user-error
 		      "home-row-numbers-argument is not configured for %c"
 		      last-command-event))))
@@ -148,9 +148,9 @@ arguments are constants."
 		  (concat "C-u- "
 			  home-row-numbers-already-printed
 			  (apply #'concat
-			     (cl-loop for i from (if arg-is-zero 2 1) to
-				      home-row-numbers-leading-zeroes
-				      collect "0"))
+				 (cl-loop for i from (if arg-is-zero 2 1) to
+					  home-row-numbers-leading-zeroes
+					  collect "0"))
 			  (number-to-string
 			   (prefix-numeric-value prefix-arg))))))
 	   prefix-arg))
@@ -178,9 +178,9 @@ arguments are constants."
 				       (home-row-numbers-string->char-list
 					print-key)
 				     (list print-key)))
-		     collect
-		     `(define-key universal-argument-map
-			[,k] #'home-row-numbers-print))))
+			collect
+			`(define-key universal-argument-map
+			   [,k] #'home-row-numbers-print))))
 
        ,@(when decimal-key
 	   (cl-assert print-key nil "The DECIMAL-KEY
@@ -212,8 +212,8 @@ arguments are constants."
 			   [,k] #'home-row-numbers-decimal))))
 
        ,@(cl-loop for k in letters
-	       collect `(define-key universal-argument-map
-			  [,k] #'home-row-numbers-argument)))))
+		  collect `(define-key universal-argument-map
+			     [,k] #'home-row-numbers-argument)))))
 
 (defun home-row-numbers--completing-read (keyword prompt options required)
   (list keyword
@@ -344,9 +344,9 @@ itself byte-compiled."
        args)
       `(home-row-numbers-helper
 	,@(cl-loop for arg in args collect
-		(if (consp arg)
-		    (second arg)
-		  arg)))
+		   (if (consp arg)
+		       (second arg)
+		     arg)))
     form))
 
 ;;;###autoload
