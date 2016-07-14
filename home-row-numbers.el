@@ -171,7 +171,7 @@ arguments are constants."
        ,@(when print-key
 	   `((defun home-row-numbers-print (real-arg)
 	       "Insert `prefix-arg' into the current buffer."
-	       (interactive "P")
+	       (interactive "*P")
 	       (let* ((arg (prefix-numeric-value real-arg))
 		      (lead-zeroes
 		       (apply #'concat
@@ -205,7 +205,7 @@ arguments are constants."
 	       "Insert `prefix-arg' into the current buffer, a
 	       decimal, and continue accepting a prefix
 	       argument."
-	       (interactive "P")
+	       (interactive "*P")
 	       (let ((new-part (home-row-numbers-print arg))
 		     (message-log-max nil))
 		 (insert ,decimal)
