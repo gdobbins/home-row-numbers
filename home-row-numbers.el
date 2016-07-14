@@ -137,23 +137,28 @@ arguments are constants."
 		       last-command-event))))
 		(arg-and-key-are-zero
 		 (and (eq last-command-event ?0)
-		      (or (equal '(4) arg)
+		      (or (not (numberp arg))
 			  (zerop (prefix-numeric-value arg))))))
 	   (when arg-and-key-are-zero
 	     (incf home-row-numbers-leading-zeroes))
 	   (digit-argument arg)
 	   ,(when message
-	      '(let ((message-log-max nil))
+	      '(let ((message-log-max nil)
+		     (prefix-number
+		      (prefix-numeric-value prefix-arg)))
 		 (message
 		  (concat "C-u- "
 			  home-row-numbers-already-printed
+			  (if (< prefix-number 0) "-" "")
 			  (apply #'concat
 				 (cl-loop for i from
-					  (if arg-and-key-are-zero 2 1)
+					  (if (and
+					       arg-and-key-are-zero
+					       (not (eq '- arg))) 2 1)
 					  to home-row-numbers-leading-zeroes
 					  collect "0"))
 			  (number-to-string
-			   (prefix-numeric-value prefix-arg))))))
+			   (abs prefix-number))))))
 	   prefix-arg))
 
        ,@(when print-key
@@ -168,8 +173,9 @@ arguments are constants."
 		 (setq home-row-numbers-already-printed nil
 		       home-row-numbers-leading-zeroes 0)
 		 (let ((str (concat
+			     (if (< arg 0) "-" "")
 			     lead-zeroes
-			     (number-to-string arg))))
+			     (number-to-string (abs arg)))))
 		   (insert str)
 		   str)))
 
