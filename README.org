@@ -7,6 +7,11 @@
   numeric input. It supports both typical insertion into a buffer as
   well as input for use with universal-argument.
 
+  Assuming you have a qwerty keyboard and use the defaults, after
+  running home-row-numbers you can call C-u a s d f p and 1234 will be
+  printed in the buffer. Doing C-u a j C-n will go forward 17 lines
+  etc.
+
 * Installation
   After the typical package installation process put the following in
   your init file:
