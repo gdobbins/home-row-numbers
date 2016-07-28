@@ -1,0 +1,38 @@
+#+Title: Home Row Numbers
+#+Author: Graham Dobbins
+#+Description: An Emacs package to facilitate using the home row for numeric input
+
+* About
+  This is an Emacs package which facilitates using the home row for
+  numeric input. It supports both typical insertion into a buffer as
+  well as input for use with universal-argument.
+
+* Installation
+  After the typical package installation process put the following in
+  your init file:
+
+#+BEGIN_SRC emacs-lisp
+  (eval-when-compile (require 'home-row-numbers))
+  (home-row-numbers)
+#+END_SRC
+
+* Documentation
+  See the documentation string for home-row-numbers for all available
+  options. Currently both qwerty and dvorak layouts are supported as
+  well as both the typical number ordering of 1-9,0 and the ordering
+  found on programming dvorak layouts. Custom layouts and number
+  orderings are also supported.
+
+* License
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
