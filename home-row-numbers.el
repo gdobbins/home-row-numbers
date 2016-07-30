@@ -28,7 +28,7 @@
 ;; the home row or a pseudo numpad type layout. Custom keyboard
 ;; layouts and number orders are also supported.
 
-(eval-when-compile (require 'cl))
+(eval-when-compile (require 'cl-lib))
 
 (defvar home-row-numbers-qwerty
   '(?a ?s ?d ?f ?g ?h ?j ?k ?l ?\;)
