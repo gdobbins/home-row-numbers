@@ -246,7 +246,7 @@ arguments are constants."
 				 (decimal ".")
 				 (numbers nil)
 				 (compile t))
-  "Setup `universal-prefix-map' to accept letters as numbers for
+  "Setup \\[universal-argument] to accept letters as numbers for
 use as either a prefix argument or to print into the current
 buffer.
 
