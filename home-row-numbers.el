@@ -169,22 +169,22 @@ arguments are constants."
 	   prefix-arg))
 
        ,@(when print-key
-	   `((defun home-row-numbers-print (real-arg)
+	   `((defun home-row-numbers-print (arg)
 	       "Insert `prefix-arg' into the current buffer."
 	       (interactive "*P")
-	       (let* ((arg (prefix-numeric-value real-arg))
+	       (let* ((num-arg (prefix-numeric-value arg))
 		      (lead-zeroes
 		       (apply #'concat
-			      (cl-loop for i from (if (zerop arg) 2 1) to
+			      (cl-loop for i from (if (zerop num-arg) 2 1) to
 				       home-row-numbers-leading-zeroes
 				       collect "0"))))
 		 (setq home-row-numbers-already-printed nil
 		       home-row-numbers-leading-zeroes 0)
 		 (let ((str (concat
-			     (if (< arg 0) "-" "")
+			     (if (< num-arg 0) "-" "")
 			     lead-zeroes
-			     (unless (eq '- real-arg)
-			       (number-to-string (abs arg))))))
+			     (unless (eq '- arg)
+			       (number-to-string (abs num-arg))))))
 		   (insert str)
 		   str)))
 
