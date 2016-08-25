@@ -71,6 +71,7 @@
 (cl-defmacro home-row-numbers-helper (&key (layout 'qwerty)
 					   (message t)
 					   (print-key ?p)
+					   (print-and-continue-key ? )
 					   (decimal-key ?\.)
 					   (decimal ".")
 					   (numbers nil)
@@ -198,6 +199,27 @@ arguments are constants."
 			`(define-key universal-argument-map
 			   [,k] #'home-row-numbers-print))))
 
+       ,@(when print-and-continue-key
+	   (cl-assert print-key nil "The PRINT-AND-CONTINUE-KEY
+	   functionality requires at least one PRINT-KEY")
+	   `((defun home-row-numbers-continue (arg)
+	       "Insert `prefix-arg' into the buffer then continue
+	       accepting a `universal-argument'"
+	       (interactive "*P")
+	       (home-row-numbers-print arg)
+	       (insert " ")
+	       (universal-argument))
+
+	     ,@(cl-loop for k in (if (consp print-and-continue-key)
+				     print-and-continue-key
+				   (if (stringp print-and-continue-key)
+				       (home-row-numbers-string->char-list
+					print-and-continue-key)
+				     (list print-and-continue-key)))
+			collect
+			`(define-key universal-argument-map
+			   [,k] #'home-row-numbers-continue))))
+
        ,@(when decimal-key
 	   (cl-assert print-key nil "The DECIMAL-KEY
 	   functionality requires at least one PRINT-KEY")
@@ -242,6 +264,7 @@ arguments are constants."
 (cl-defun home-row-numbers (&key (layout 'qwerty)
 				 (message t)
 				 (print-key ?p)
+				 (print-and-continue-key ?\ )
 				 (decimal-key ?\.)
 				 (decimal ".")
 				 (numbers nil)
@@ -273,6 +296,12 @@ PRINT-KEY
 
 A character to bind `home-row-numbers-print' to. If nil then not
 bound. If a string or list of characters all are bound. Default p.
+
+PRINT-AND-CONTINUE-KEY
+
+A character to bind `home-row-numbers-continue' to. Like
+PRINT-KEY except prints a space after inserting the numbers and
+then continues accepting numbers.
 
 DECIMAL-KEY
 
@@ -319,6 +348,12 @@ itself byte-compiled."
 			      '("p")
 			      nil nil nil nil
 			      "p")))
+      (list :print-and-continue-key
+	    (home-row-numbers-string->char-list
+	     (completing-read "Print-and-continue-key(s): "
+			      '(" ")
+			      nil nil nil nil
+			      " ")))
       (list :decimal-key
 	    (home-row-numbers-string->char-list
 	     (completing-read "Decimal-key(s): "
@@ -338,6 +373,7 @@ itself byte-compiled."
 	  :layout ,layout
 	  :message ,message
 	  :print-key ,print-key
+	  :print-and-continue-key ,print-and-continue-key
 	  :decimal-key ,decimal-key
 	  :decimal ,decimal
 	  :numbers ,(unless (eql numbers 'normal) numbers))
@@ -346,6 +382,8 @@ itself byte-compiled."
     (byte-compile #'home-row-numbers-argument)
     (when print-key
       (byte-compile #'home-row-numbers-print)
+      (when print-and-continue-key
+	(byte-compile #'home-row-numbers-continue))
       (when decimal-key
 	(byte-compile #'home-row-numbers-decimal)))))
 
@@ -376,6 +414,9 @@ itself byte-compiled."
 			     nil
 			     universal-argument-map)
   (substitute-key-definition 'home-row-numbers-print
+			     nil
+			     universal-argument-map)
+  (substitute-key-definition 'home-row-numbers-continue
 			     nil
 			     universal-argument-map)
   (substitute-key-definition 'home-row-numbers-decimal
