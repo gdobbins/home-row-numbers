@@ -112,7 +112,19 @@ arguments are constants."
 		  ((or (eql numbers 'programming)
 		       (eql numbers 'prog))
 		   home-row-numbers-prog)
-		  (t home-row-numbers-norm))))
+		  (t home-row-numbers-norm)))
+	(ua-prefix
+	 (concat
+	  (or
+	   (ignore-errors
+	     (format-kbd-macro
+	      (format "%c"
+		      (aref
+		       (where-is-internal
+			#'universal-argument (current-global-map) t)
+		       0)))
+	     "C-u"))
+	  "- ")))
     (cl-assert (= (length letters) (length numbers))
 	       nil
 	       "the LAYOUT and NUMBERS arguments to home-row-numbers
@@ -147,26 +159,28 @@ arguments are constants."
 	     (incf home-row-numbers-leading-zeroes))
 	   (digit-argument arg)
 	   ,(when message
-	      '(let ((message-log-max nil)
+	      `(let ((message-log-max nil)
 		     (prefix-number
 		      (prefix-numeric-value prefix-arg))
 		     (arg-is-minus-zero
 		      (and (eq '- arg)
 			   (not (eq last-command-event ?1)))))
 		 (message
-		  (concat "C-u- "
-			  home-row-numbers-already-printed
-			  (if (< prefix-number 0) "-" "")
-			  (apply #'concat
-				 (cl-loop for i from
-					  (if (and
-					       arg-and-key-are-zero
-					       (not arg-is-minus-zero)) 2 1)
-					  to home-row-numbers-leading-zeroes
-					  collect "0"))
-			  (unless arg-is-minus-zero
-			    (number-to-string
-			     (abs prefix-number)))))))
+		  (concat
+		   ,ua-prefix
+		   home-row-numbers-already-printed
+		   (if (< prefix-number 0) "-" "")
+		   (apply #'concat
+			  (cl-loop for i from
+				   (if (and
+					arg-and-key-are-zero
+					(not arg-is-minus-zero))
+				       2 1)
+				   to home-row-numbers-leading-zeroes
+				   collect "0"))
+		   (unless arg-is-minus-zero
+		     (number-to-string
+		      (abs prefix-number)))))))
 	   prefix-arg))
 
        ,@(when print-key
@@ -236,7 +250,7 @@ arguments are constants."
 			       new-part
 			       ,decimal))
 		 ,(when message
-		    '(message (concat "C-u- " home-row-numbers-already-printed))))
+		    `(message (concat ,ua-prefix home-row-numbers-already-printed))))
 	       (universal-argument)
 	       (setq prefix-arg 0))
 
